@@ -3,7 +3,7 @@
 ![SQL](https://img.shields.io/badge/SQL-GROUP%20BY%20%7C%20Conditional%20Aggregation%20%7C%20CASE%20WHEN-blue)
 ![Dataset](https://img.shields.io/badge/Dataset-IBM%20HR%20Analytics-green)
 ![Records](https://img.shields.io/badge/Records-1%2C470%20Employees-lightgrey)
-![Queries](https://img.shields.io/badge/Queries-40%20SQL%20Questions-orange)
+![Queries](https://img.shields.io/badge/Queries-%20SQL%20Questions-orange)
 
 This project looks at why employees leave. Using the IBM HR Analytics dataset (1,470 employees), I wrote SQL queries to find attrition patterns across departments, education backgrounds, travel frequency, pay, age, and commute distance.
 
@@ -80,7 +80,7 @@ The overall attrition rate is 16.12% — meaning roughly 1 in 6 employees left. 
 
 - `GROUP BY` with `COUNT()`, `AVG()`, and `MAX()` for distribution and averages across segments
 - Conditional aggregation using `CASE WHEN` inside `SUM()` to calculate attrition counts without subqueries
-- Attrition rate formula: `SUM(CASE WHEN Attrition = 'Yes' THEN 1 ELSE 0 END) * 100.0 / COUNT(*)`
+- Attrition rate formula: `SUM(CASE WHEN Attrition = '1' THEN 1 ELSE 0 END) * 100.0 / COUNT(*)`
 - `ROUND()` and `ORDER BY` for clean, ranked outputs
 
 ---
@@ -88,21 +88,17 @@ The overall attrition rate is 16.12% — meaning roughly 1 in 6 employees left. 
 ## Sample query
 
 ```sql
--- Attrition rate by department
-SELECT
-    Department,
-    COUNT(*) AS total_employees,
-    SUM(CASE WHEN Attrition = 'Yes' THEN 1 ELSE 0 END) AS employees_left,
-    ROUND(
-        SUM(CASE WHEN Attrition = 'Yes' THEN 1 ELSE 0 END) * 100.0
-        / COUNT(*), 2
-    ) AS attrition_rate_pct
-FROM hr_data
-GROUP BY Department
-ORDER BY attrition_rate_pct DESC;
+-- Employee Segments Most Likely to Leave (Based on Attrition Rate)
+SELECT Department, BusinessTravel, EducationField, Avg(DailyRate) AS DailyRate, Avg(DistanceFromHome) AS DistanceFromHome,
+SUM(CASE WHEN Attrition = '1' THEN 1 END) AS EmpLeft,
+SUM(CASE WHEN Attrition = '0' THEN 1 END) AS EmpStayed, 
+SUM(CASE WHEN Attrition = '1' THEN 1 ELSE 0 END) * 100.0 / COUNT (Attrition) AS AttritionRate
+FROM HR_Attrition
+GROUP BY Department, BusinessTravel, EducationField
+ORDER BY AttritionRate DESC;
 ```
 
-All 40 queries with comments are in [`attrition_analysis.sql`](./attrition_analysis.sql)
+All SQL queries with comments are in [`attrition_analysis.sql`](./attrition_analysis.sql)
 
 ---
 
@@ -110,9 +106,9 @@ All 40 queries with comments are in [`attrition_analysis.sql`](./attrition_analy
 
 | File | Description |
 |------|-------------|
-| `attrition_analysis.sql` | All 40 queries |
-| `hr_data.csv` | Source dataset |
-| `README.md` | This file |
+| `attrition_analysis.sql` | All SQL queries |
+| `HR-Employee-Attrition` | Source dataset |
+| `Employee Attrition Analysis  Info.md` | This file |
 
 ---
 
